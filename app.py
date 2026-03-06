@@ -1,6 +1,6 @@
 import streamlit as st
 import pandas as pd
-    try:
+try:
         dados = db.reference('batidas').get()
         if dados:
             registros = []
