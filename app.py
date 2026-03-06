@@ -1,4 +1,4 @@
- st.markdown("<h1 style='color: #D4AF37; text-align: center;'>PAINEL DO GESTOR</h1>", unsafe_allow_html=True)
+st.markdown("<h1 style='color: #D4AF37; text-align: center;'>PAINEL DO GESTOR</h1>", unsafe_allow_html=True)
     st.markdown("---")
     
     st.subheader("Histórico de Batidas (Tempo Real)")
