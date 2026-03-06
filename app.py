@@ -1,7 +1,5 @@
-st.markdown("---")
-    
-    st.subheader("Histórico de Batidas (Tempo Real)")
-    
+import streamlit as st
+import pandas as pd
     try:
         dados = db.reference('batidas').get()
         if dados:
