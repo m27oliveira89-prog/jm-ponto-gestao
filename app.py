@@ -1,4 +1,4 @@
-  st.markdown("---")
+st.markdown("---")
     
     st.subheader("Histórico de Batidas (Tempo Real)")
     
