@@ -1,11 +1,11 @@
-# --- 5. ÁREA DO RH (ATUALIZADA COM EXPORTAÇÃO) ---
-else:
+import streamlit as st
+import pandas as pd
     st.markdown("<h1 style='color: #D4AF37; text-align: center;'>PAINEL DO GESTOR</h1>", unsafe_allow_html=True)
     st.markdown("---")
     
     st.subheader("Histórico de Batidas (Tempo Real)")
     
-    try:
+try:
         dados = db.reference('batidas').get()
         if dados:
             registros = []
@@ -43,5 +43,5 @@ else:
             
         else:
             st.info("Aguardando os primeiros registros...")
-    except Exception as e:
+except Exception as e:
         st.error(f"Erro ao carregar dados: {e}")
