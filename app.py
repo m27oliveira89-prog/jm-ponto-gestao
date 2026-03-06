@@ -41,5 +41,5 @@ try:
             
         else:
             st.info("Aguardando os primeiros registros...")
-    except Exception as e:
+except Exception as e:
         st.error(f"Erro ao carregar dados: {e}")
