@@ -3,7 +3,7 @@ import pandas as pd
 import firebase_admin
 from firebase_admin import credentials, db
 
-# CONFIGURAÇÃO AUTOMÁTICA (NÃO MEXER AQUI)
+# 1. CONEXÃO FIREBASE (SÓ UMA VEZ)
 if not firebase_admin._apps:
     try:
         cred_dict = {
@@ -19,37 +19,42 @@ if not firebase_admin._apps:
             "client_x509_cert_url": st.secrets["firebase"]["client_x509_cert_url"]
         }
         cred = credentials.Certificate(cred_dict)
-        firebase_admin.initialize_app(cred, {
-            'databaseURL': 'https://jm-ponto-gestao-default-rtdb.firebaseio.com/'
-        })
+        firebase_admin.initialize_app(cred, {'databaseURL': 'https://jm-ponto-gestao-default-rtdb.firebaseio.com/'})
     except Exception as e:
-        st.error(f"Erro de Conexão: {e}")
+        st.error(f"Erro de conexão: {e}")
 
-# VISUAL DO SITE
-st.markdown("<h1 style='text-align: center; color: #D4AF37;'>PAINEL DO GESTOR</h1>", unsafe_allow_html=True)
-st.divider()
-st.subheader("Histórico de Batidas (Tempo Real)")
+# 2. INTERFACE SIMPLIFICADA (SEM LOGIN)
+st.set_page_config(page_title="JM Ponto & Gestão", layout="centered")
 
-try:
-    ref = db.reference('batidas')
-    dados = ref.get()
+aba1, aba2 = st.tabs(["📲 BATER PONTO", "📊 PAINEL DO GESTOR"])
 
-    if dados:
-        registros = []
-        for mat, datas in dados.items():
-            for dia, batidas in datas.items():
-                for id_b, info in batidas.items():
-                    registros.append({
-                        "Matrícula": mat,
-                        "Data": dia,
-                        "Hora": info.get('hora', '-'),
-                        "Status": info.get('status', '-')
-                    })
-        df = pd.DataFrame(registros)
-        st.dataframe(df, use_container_width=True)
-        csv = df.to_csv(index=False).encode('utf-8')
-        st.download_button("📥 BAIXAR RELATÓRIO", csv, "ponto.csv", "text/csv")
-    else:
-        st.info("Aguardando registros...")
-except:
-    st.warning("Conectando ao banco de dados...")
+with aba1:
+    st.header("Registro de Ponto")
+    matricula = st.text_input("Digite sua Matrícula")
+    if st.button("REGISTRAR AGORA"):
+        if matricula:
+            from datetime import datetime
+            agora = datetime.now()
+            data_hoje = agora.strftime("%Y-%m-%d")
+            hora_agora = agora.strftime("%H:%M:%S")
+            ref = db.reference(f'batidas/{matricula}/{data_hoje}')
+            ref.push({'hora': hora_agora, 'status': 'Registrado'})
+            st.success(f"Ponto registrado! {hora_agora}")
+        else:
+            st.warning("Insira a matrícula.")
+
+with aba2:
+    st.header("Histórico de Batidas")
+    try:
+        dados = db.reference('batidas').get()
+        if dados:
+            regs = []
+            for mat, datas in dados.items():
+                for dia, batidas in datas.items():
+                    for id_b, info in batidas.items():
+                        regs.append({"Matrícula": mat, "Data": dia, "Hora": info.get('hora'), "Status": info.get('status')})
+            st.table(pd.DataFrame(regs))
+        else:
+            st.info("Nenhum registro encontrado.")
+    except:
+        st.write("Carregando painel...")
